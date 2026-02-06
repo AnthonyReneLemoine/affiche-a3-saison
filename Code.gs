@@ -26,13 +26,8 @@ function createPoster(payload) {
 function buildPosterHtml(data) {
   var optionalSubtitleText = data.subtitleText ? '<p class="subtitle-text">' + escapeHtml(data.subtitleText) + '</p>' : '';
   var optionalDateText = data.dateText ? '<p class="date-text">' + escapeHtml(data.dateText) + '</p>' : '';
+  var topLogo = data.topLogo || '';
   var bottomLogo = data.bottomLogo || '';
-  var topLogo = '';
-  if (data.topLogoChoice === 'white') {
-    topLogo = data.topLogoWhite || '';
-  } else if (data.topLogoChoice === 'black') {
-    topLogo = data.topLogoBlack || '';
-  }
   var mainImage = data.mainImage || '';
 
   return (
