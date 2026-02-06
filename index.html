@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Créateur d'affiches A3</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 24px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+    }
+    button {
+      background: #f2d20a;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f9f4d1;
+      border-radius: 6px;
+      display: none;
+    }
+    .hint {
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Créateur d'affiches A3</h1>
+    <p class="hint">Remplissez les champs pour générer une affiche A3 (HTML + PDF).</p>
+    <div class="grid">
+      <div>
+        <label for="title">Titre</label>
+        <input id="title" type="text" required />
+      </div>
+      <div>
+        <label for="subtitle">Sous-titre</label>
+        <input id="subtitle" type="text" required />
+      </div>
+      <div>
+        <label for="subtitleText">Texte sous le sous-titre (optionnel)</label>
+        <textarea id="subtitleText"></textarea>
+      </div>
+      <div>
+        <label for="date">Jour / Heure</label>
+        <input id="date" type="text" placeholder="Vendredi 20 février / 12h30" required />
+      </div>
+      <div>
+        <label for="dateText">Texte sous la date (optionnel)</label>
+        <textarea id="dateText"></textarea>
+      </div>
+      <div>
+        <label for="footer">Infos bas de page</label>
+        <textarea id="footer">espace culturel l'hermine\nrue du Père Coudrin / 56370 Sarzeau\n► lhermine.bzh</textarea>
+      </div>
+      <div>
+        <label for="mainImage">Photo principale</label>
+        <input id="mainImage" type="file" accept="image/*" />
+      </div>
+      <div>
+        <label for="topLogoChoice">Logo haut (blanc ou noir)</label>
+        <select id="topLogoChoice">
+          <option value="">Aucun</option>
+          <option value="white">Logo blanc</option>
+          <option value="black">Logo noir</option>
+        </select>
+        <div style="margin-top: 8px;">
+          <label for="topLogoWhite">Uploader logo blanc</label>
+          <input id="topLogoWhite" type="file" accept="image/*" />
+        </div>
+        <div style="margin-top: 8px;">
+          <label for="topLogoBlack">Uploader logo noir</label>
+          <input id="topLogoBlack" type="file" accept="image/*" />
+        </div>
+      </div>
+      <div>
+        <label for="bottomLogo">Logo bas (par défaut ou uploader)</label>
+        <input id="bottomLogo" type="file" accept="image/*" />
+      </div>
+    </div>
+    <div class="actions">
+      <button id="generate">Générer l'affiche</button>
+    </div>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const readAsDataUrl = (file) => new Promise((resolve, reject) => {
+      if (!file) {
+        resolve('');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('generate').addEventListener('click', async () => {
+      const payload = {
+        title: document.getElementById('title').value.trim(),
+        subtitle: document.getElementById('subtitle').value.trim(),
+        subtitleText: document.getElementById('subtitleText').value.trim(),
+        date: document.getElementById('date').value.trim(),
+        dateText: document.getElementById('dateText').value.trim(),
+        footer: document.getElementById('footer').value.trim(),
+        mainImage: await readAsDataUrl(document.getElementById('mainImage').files[0]),
+        topLogoChoice: document.getElementById('topLogoChoice').value,
+        topLogoWhite: await readAsDataUrl(document.getElementById('topLogoWhite').files[0]),
+        topLogoBlack: await readAsDataUrl(document.getElementById('topLogoBlack').files[0]),
+        bottomLogo: await readAsDataUrl(document.getElementById('bottomLogo').files[0])
+      };
+
+      if (!payload.title || !payload.subtitle || !payload.date) {
+        alert('Merci de remplir le titre, le sous-titre et la date.');
+        return;
+      }
+
+      google.script.run.withSuccessHandler((result) => {
+        const resultEl = document.getElementById('result');
+        resultEl.style.display = 'block';
+        resultEl.innerHTML = `✅ Fichiers créés :<br />
+          <a href="${result.htmlUrl}" target="_blank">Télécharger HTML</a><br />
+          <a href="${result.pdfUrl}" target="_blank">Télécharger PDF</a>`;
+      }).withFailureHandler((error) => {
+        alert('Erreur : ' + error.message);
+      }).createPoster(JSON.stringify(payload));
+    });
+  </script>
+</body>
+</html>
