@@ -198,11 +198,11 @@
         <input id="title" type="text" required />
       </div>
       <div>
-        <label for="subtitle">Sous-titre</label>
-        <input id="subtitle" type="text" required />
+        <label for="subtitle">Sous-titre (optionnel)</label>
+        <input id="subtitle" type="text" />
       </div>
       <div>
-        <label for="subtitleText">Texte sous le sous-titre (optionnel)</label>
+        <label for="subtitleText">Texte descriptif (optionnel)</label>
         <textarea id="subtitleText"></textarea>
       </div>
       <div>
@@ -351,8 +351,8 @@ rue du Père Coudrin / 56370 Sarzeau
         bottomLogo: bottomLogo
       };
 
-      if (!payload.title || !payload.subtitle || !payload.date) {
-        alert('Merci de remplir le titre, le sous-titre et la date.');
+      if (!payload.title || !payload.date) {
+        alert('Merci de remplir le titre et la date.');
         return;
       }
 
