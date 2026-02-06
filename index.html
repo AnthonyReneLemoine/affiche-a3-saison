@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Affiche A3 - Saison Sarzeau</title>
+  <title>Affiche A3 - Saison Culturelle l'Hermine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -12,7 +15,7 @@
     }
 
     @page {
-      size: A3 portrait;
+      size: 297mm 420mm;
       margin: 0;
     }
 
@@ -20,42 +23,150 @@
       width: 297mm;
       height: 420mm;
       margin: 0 auto;
-      background: #ffffff;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'Montserrat', Arial, Helvetica, sans-serif;
       position: relative;
       overflow: hidden;
+      background: #f0f0f0;
     }
 
+    /* ========================
+       POSTER
+       ======================== */
     .poster {
       width: 100%;
       height: 100%;
       position: relative;
-      padding: 20mm;
+      display: flex;
+      flex-direction: column;
     }
 
-    .logo-top-left {
+    /* ========================
+       ZONE PHOTO (haut ~55%)
+       ======================== */
+    .photo-zone {
+      width: 100%;
+      flex: 0 0 55%;
+      position: relative;
+      overflow: hidden;
+      background: #333;
+    }
+
+    .photo-zone img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 5mm;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    /* Logo l'Hermine sur la photo */
+    .logo-hermine {
       position: absolute;
-      top: 15mm;
-      left: 15mm;
+      top: 6mm;
+      left: 6mm;
+      z-index: 2;
     }
 
-    .logo-top-left img {
-      width: 45mm;
+    .logo-hermine img {
+      width: 38mm;
       height: auto;
     }
 
-    .logo-bottom-right {
-      position: absolute;
-      bottom: 15mm;
-      right: 15mm;
+    /* ========================
+       ZONE TEXTE (bas ~45%)
+       ======================== */
+    .text-zone {
+      width: 100%;
+      flex: 1;
+      background: #EDBA00;
+      padding: 10mm 12mm 10mm 12mm;
+      position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
-    .logo-bottom-right img {
-      width: 50mm;
+    /* Titre de l'événement */
+    .event-title {
+      font-size: 12.5mm;
+      font-weight: 900;
+      line-height: 1.05;
+      color: #000;
+      margin-bottom: 3mm;
+    }
+
+    /* Sous-titre / description (optionnel) */
+    .event-description {
+      font-size: 4.8mm;
+      font-weight: 400;
+      line-height: 1.35;
+      color: #000;
+      margin-bottom: 5mm;
+    }
+
+    .event-description:empty {
+      display: none;
+    }
+
+    /* Date et heure */
+    .event-date {
+      font-size: 9mm;
+      font-weight: 900;
+      line-height: 1.1;
+      color: #000;
+      margin-bottom: auto;
+    }
+
+    /* Zone basse : adresse + site + logo Sarzeau */
+    .bottom-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 5mm;
+    }
+
+    .address-block {
+      font-size: 3.5mm;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #000;
+    }
+
+    .website {
+      font-size: 3.5mm;
+      font-weight: 400;
+      color: #000;
+      margin-top: 3mm;
+    }
+
+    .website::before {
+      content: "▸";
+      margin-right: 1px;
+    }
+
+    .logo-sarzeau {
+      flex-shrink: 0;
+    }
+
+    .logo-sarzeau img {
+      width: 32mm;
       height: auto;
     }
 
-    .logo-switcher {
+    /* ========================
+       BOUTONS DE CONTRÔLE
+       ======================== */
+    .controls {
       position: fixed;
       top: 10px;
       right: 10px;
@@ -64,17 +175,18 @@
       z-index: 100;
     }
 
-    .logo-switcher button {
+    .controls button {
       padding: 8px 16px;
       border: 2px solid #ccc;
       border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
-      font-weight: bold;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
       transition: all 0.2s;
     }
 
-    .logo-switcher button.active {
+    .controls button.active {
       border-color: #0066cc;
       box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.3);
     }
@@ -93,36 +205,69 @@
       body {
         width: 297mm;
         height: 420mm;
+        background: none;
       }
-      .logo-switcher {
+      .controls {
         display: none;
       }
     }
   </style>
 </head>
 <body>
-  <div class="logo-switcher">
-    <button class="btn-noir active" onclick="switchLogo('noir')">Logo Noir</button>
-    <button class="btn-blanc" onclick="switchLogo('blanc')">Logo Blanc</button>
+
+  <!-- Boutons choix logo blanc/noir -->
+  <div class="controls">
+    <button class="btn-blanc active" onclick="switchLogo('blanc')">Logo Blanc</button>
+    <button class="btn-noir" onclick="switchLogo('noir')">Logo Noir</button>
   </div>
 
   <div class="poster">
 
-    <!-- Logo l'hermine en haut à gauche (version noir par défaut) -->
-    <div class="logo-top-left">
-      <img id="logo-hermine" src="assets/logo-hermine-noir.png" alt="L'Hermine - Saison Culturelle">
+    <!-- ===== ZONE PHOTO ===== -->
+    <div class="photo-zone">
+      <!-- Logo l'Hermine (blanc par défaut, sur la photo) -->
+      <div class="logo-hermine">
+        <img id="logo-hermine" src="assets/logo-hermine-blanc.png" alt="L'Hermine - Saison Culturelle">
+      </div>
+
+      <!-- PHOTO : remplacer par votre image -->
+      <!-- <img src="assets/photo-evenement.jpg" alt="Photo événement"> -->
+      <div class="photo-placeholder">Insérer la photo ici</div>
     </div>
 
-    <!-- Logo Sarzeau en bas à droite -->
-    <div class="logo-bottom-right">
-      <img src="assets/logo-sarzeau.png" alt="Logo Sarzeau">
+    <!-- ===== ZONE TEXTE JAUNE ===== -->
+    <div class="text-zone">
+
+      <!-- Titre de l'événement -->
+      <h1 class="event-title">La p'tite bouffe de l'Hermine</h1>
+
+      <!-- Sous-titre / description (laisser vide pour masquer) -->
+      <p class="event-description">L'équipe de l'Hermine vous convie à venir échanger de manière informelle des spectacles, expositions, actions culturelles ou autres, autour d'un repas sur l'heure de midi.<br>Emmenez votre pique-nique !</p>
+
+      <!-- Date au format long -->
+      <p class="event-date">Vendredi 20 février / 12h30</p>
+
+      <!-- Adresse + site web + logo Sarzeau -->
+      <div class="bottom-info">
+        <div>
+          <p class="address-block">
+            espace culturel l'hermine<br>
+            rue du Père Coudrin / 56370 Sarzeau
+          </p>
+          <p class="website">lhermine.bzh</p>
+        </div>
+        <div class="logo-sarzeau">
+          <img src="assets/logo-sarzeau.png" alt="Logo Sarzeau">
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script>
     function switchLogo(version) {
       document.getElementById('logo-hermine').src = 'assets/logo-hermine-' + version + '.png';
-      document.querySelectorAll('.logo-switcher button').forEach(function(btn) {
+      document.querySelectorAll('.controls button').forEach(function(btn) {
         btn.classList.remove('active');
       });
       document.querySelector('.btn-' + version).classList.add('active');
