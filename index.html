@@ -55,20 +55,62 @@
       height: auto;
     }
 
+    .logo-switcher {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .logo-switcher button {
+      padding: 8px 16px;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .logo-switcher button.active {
+      border-color: #0066cc;
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.3);
+    }
+
+    .btn-noir {
+      background: #222;
+      color: #fff;
+    }
+
+    .btn-blanc {
+      background: #fff;
+      color: #222;
+    }
+
     @media print {
       body {
         width: 297mm;
         height: 420mm;
       }
+      .logo-switcher {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="logo-switcher">
+    <button class="btn-noir active" onclick="switchLogo('noir')">Logo Noir</button>
+    <button class="btn-blanc" onclick="switchLogo('blanc')">Logo Blanc</button>
+  </div>
+
   <div class="poster">
 
     <!-- Logo l'hermine en haut à gauche (version noir par défaut) -->
     <div class="logo-top-left">
-      <img src="assets/logo-hermine-noir.png" alt="L'Hermine - Saison Culturelle">
+      <img id="logo-hermine" src="assets/logo-hermine-noir.png" alt="L'Hermine - Saison Culturelle">
     </div>
 
     <!-- Logo Sarzeau en bas à droite -->
@@ -76,5 +118,15 @@
       <img src="assets/logo-sarzeau.png" alt="Logo Sarzeau">
     </div>
   </div>
+
+  <script>
+    function switchLogo(version) {
+      document.getElementById('logo-hermine').src = 'assets/logo-hermine-' + version + '.png';
+      document.querySelectorAll('.logo-switcher button').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      document.querySelector('.btn-' + version).classList.add('active');
+    }
+  </script>
 </body>
 </html>
