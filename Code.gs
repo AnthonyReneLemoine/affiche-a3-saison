@@ -45,15 +45,35 @@ function listPosterEntries() {
   }).reverse();
 }
 
-function ensureAfficheSheet() {
+function ensureAfficheSpreadsheet() {
   var sheetName = 'AFFICHE HERMINE A3';
-  var spreadsheet;
+  var propertyKey = 'AFFICHE_HERMINE_A3_SHEET_ID';
+  var storedId = PropertiesService.getScriptProperties().getProperty(propertyKey);
+  if (storedId) {
+    try {
+      return SpreadsheetApp.openById(storedId);
+    } catch (error) {
+      PropertiesService.getScriptProperties().deleteProperty(propertyKey);
+    }
+  }
   var files = DriveApp.getFilesByName(sheetName);
   if (files.hasNext()) {
-    spreadsheet = SpreadsheetApp.open(files.next());
-  } else {
-    spreadsheet = SpreadsheetApp.create(sheetName);
+    var existing = files.next();
+    PropertiesService.getScriptProperties().setProperty(propertyKey, existing.getId());
+    return SpreadsheetApp.open(existing);
   }
+  var created = SpreadsheetApp.create(sheetName);
+  PropertiesService.getScriptProperties().setProperty(propertyKey, created.getId());
+  var targetFolder = ensureAfficheFolder();
+  var createdFile = DriveApp.getFileById(created.getId());
+  targetFolder.addFile(createdFile);
+  DriveApp.getRootFolder().removeFile(createdFile);
+  return created;
+}
+
+function ensureAfficheSheet() {
+  var sheetName = 'AFFICHE HERMINE A3';
+  var spreadsheet = ensureAfficheSpreadsheet();
   var sheet = spreadsheet.getSheetByName(sheetName);
   if (!sheet) {
     sheet = spreadsheet.insertSheet(sheetName);
