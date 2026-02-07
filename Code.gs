@@ -38,33 +38,36 @@ function buildPosterHtml(data) {
   var mainImage = data.mainImage || '';
   var footerHtml = escapeHtml(data.footer).replace(/\n/g, '<br>');
 
+  var imageBgStyle = mainImage
+    ? ' style="background-image: url(\'' + mainImage + '\');"'
+    : '';
+
   return (
     '<!DOCTYPE html>' +
     '<html lang="fr">' +
     '<head>' +
     '<meta charset="utf-8">' +
     '<style>' +
-    '@page { size: A3; margin: 0; }' +
-    'body { margin: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-print-color-adjust: exact; }' +
-    '.poster { width: 297mm; height: 420mm; overflow: hidden; }' +
-    '.image-section { width: 100%; height: 230mm; position: relative; overflow: hidden; }' +
-    '.image-section img.main-photo { width: 100%; height: 100%; object-fit: cover; display: block; }' +
+    '@page { size: 297mm 420mm; margin: 0; }' +
+    '* { box-sizing: border-box; margin: 0; padding: 0; }' +
+    'html, body { width: 297mm; height: 420mm; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+    '.poster { width: 297mm; height: 420mm; }' +
+    '.image-section { width: 297mm; height: 230mm; position: relative; overflow: hidden; background-size: cover; background-position: center; }' +
     '.top-logo { position: absolute; top: 15mm; left: 15mm; width: 50mm; }' +
-    '.content { width: 100%; height: 190mm; background: #f2d20a; padding: 18mm 22mm 15mm 22mm; box-sizing: border-box; position: relative; }' +
-    '.title { font-size: 34pt; font-weight: 700; margin: 0 0 5mm 0; line-height: 1.1; color: #000; }' +
-    '.subtitle { font-size: 20pt; font-weight: 700; margin: 0 0 4mm 0; line-height: 1.15; color: #000; }' +
-    '.description { font-size: 13pt; font-weight: 400; margin: 0 0 6mm 0; line-height: 1.4; color: #000; }' +
-    '.date { font-size: 23pt; font-weight: 700; margin: 0; line-height: 1.15; color: #000; }' +
-    '.date-text { font-size: 13pt; font-weight: 400; margin: 3mm 0 0 0; line-height: 1.4; color: #000; }' +
-    '.footer { position: absolute; bottom: 15mm; left: 22mm; right: 22mm; display: flex; justify-content: space-between; align-items: flex-end; }' +
-    '.footer .info { font-size: 9.5pt; line-height: 1.6; color: #000; }' +
-    '.bottom-logo { width: 35mm; }' +
+    '.content { width: 297mm; height: 190mm; background: #f2d20a; padding: 15mm 20mm; position: relative; }' +
+    '.title { font-size: 45pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.05; }' +
+    '.subtitle { font-size: 22pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.15; }' +
+    '.description { font-size: 16pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.3; }' +
+    '.date { font-size: 34pt; font-weight: 700; margin: 0; line-height: 1.1; }' +
+    '.date-text { font-size: 14pt; font-weight: 400; margin: 3mm 0 0 0; line-height: 1.3; }' +
+    '.footer { position: absolute; bottom: 12mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; align-items: flex-end; }' +
+    '.footer .info { font-size: 11pt; line-height: 1.5; font-weight: 700; }' +
+    '.bottom-logo { width: 40mm; }' +
     '</style>' +
     '</head>' +
     '<body>' +
     '<div class="poster">' +
-    '<div class="image-section">' +
-    (mainImage ? '<img class="main-photo" src="' + mainImage + '" alt="Photo" />' : '') +
+    '<div class="image-section"' + imageBgStyle + '>' +
     (topLogo ? '<img class="top-logo" src="' + topLogo + '" alt="Logo" />' : '') +
     '</div>' +
     '<div class="content">' +
