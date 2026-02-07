@@ -7,18 +7,11 @@ function createPoster(payload) {
   var data = JSON.parse(payload);
   var html = buildPosterHtml(data);
 
-  var htmlFile = DriveApp.createFile(
-    'affiche-a3-' + new Date().toISOString().replace(/[:.]/g, '-') + '.html',
-    html,
-    MimeType.HTML
-  );
-
   var pdfBlob = HtmlService.createHtmlOutput(html).getAs(MimeType.PDF);
-  pdfBlob.setName(htmlFile.getName().replace('.html', '.pdf'));
+  pdfBlob.setName('affiche-a3-' + new Date().toISOString().replace(/[:.]/g, '-') + '.pdf');
   var pdfFile = DriveApp.createFile(pdfBlob);
 
   return {
-    htmlUrl: htmlFile.getUrl(),
     pdfUrl: pdfFile.getUrl()
   };
 }

@@ -180,7 +180,7 @@
 <body>
   <div class="container">
     <h1>Créateur d'affiches A3</h1>
-    <p class="hint">Remplissez les champs pour générer une affiche A3 (HTML + PDF).</p>
+    <p class="hint">Remplissez les champs pour générer une affiche A3 (PDF).</p>
 
     <!-- Logo configuration -->
     <div class="logo-config">
@@ -467,8 +467,7 @@ rue du Père Coudrin / 56370 Sarzeau
       google.script.run.withSuccessHandler(function(result) {
         var resultEl = document.getElementById('result');
         resultEl.style.display = 'block';
-        resultEl.innerHTML = '\u2705 Fichiers créés :<br />' +
-          '<a href="' + result.htmlUrl + '" target="_blank">Télécharger HTML</a><br />' +
+        resultEl.innerHTML = '\u2705 Fichier PDF créé :<br />' +
           '<a href="' + result.pdfUrl + '" target="_blank">Télécharger PDF</a>';
       }).withFailureHandler(function(error) {
         alert('Erreur : ' + error.message);
