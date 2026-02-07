@@ -60,6 +60,47 @@
       display: flex;
       gap: 12px;
     }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab-button {
+      border: 1px solid #ddd;
+      background: #f4f4f4;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tab-button.active {
+      background: #f2d20a;
+      border-color: #f2d20a;
+    }
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.95rem;
+    }
+    .history-table th,
+    .history-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .history-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     button {
       background: #f2d20a;
       border: none;
@@ -180,10 +221,16 @@
 <body>
   <div class="container">
     <h1>Créateur d'affiches A3</h1>
-    <p class="hint">Remplissez les champs pour générer une affiche A3 (HTML + PDF).</p>
+    <p class="hint">Remplissez les champs pour générer une affiche A3 (PDF).</p>
 
-    <!-- Logo configuration -->
-    <div class="logo-config">
+    <div class="tabs">
+      <button class="tab-button active" data-tab="formTab" type="button">Formulaire</button>
+      <button class="tab-button" data-tab="historyTab" type="button">Historique</button>
+    </div>
+
+    <div class="tab-panel active" id="formTab">
+      <!-- Logo configuration -->
+      <div class="logo-config">
       <div class="logo-config-header" onclick="toggleLogoConfig()">
         <h2>Configuration des logos</h2>
         <span id="toggleArrow">&#9660;</span>
@@ -243,8 +290,12 @@
         <textarea id="subtitleText"></textarea>
       </div>
       <div>
-        <label for="date">Jour / Heure</label>
-        <input id="date" type="text" placeholder="Vendredi 20 février / 12h30" required />
+        <label for="dateDay">Jour (format libre ou 02/02/26)</label>
+        <input id="dateDay" type="text" placeholder="Vendredi 20 février ou 02/02/26" required />
+      </div>
+      <div>
+        <label for="dateTime">Heure</label>
+        <input id="dateTime" type="text" placeholder="12h30" required />
       </div>
       <div>
         <label for="dateText">Texte sous la date (optionnel)</label>
@@ -270,10 +321,21 @@ rue du Père Coudrin / 56370 Sarzeau
         </div>
       </div>
     </div>
-    <div class="actions">
-      <button id="generate">Générer l'affiche</button>
+      <input id="entryId" type="hidden" />
+      <div class="actions">
+        <button id="generate">Générer l'affiche</button>
+      </div>
+      <div class="result" id="result"></div>
     </div>
-    <div class="result" id="result"></div>
+
+    <div class="tab-panel" id="historyTab">
+      <h2>Historique des affiches</h2>
+      <p class="hint">Cliquez sur “Recharger” pour modifier une affiche existante puis régénérez-la.</p>
+      <div class="actions">
+        <button id="refreshHistory" type="button">Actualiser l'historique</button>
+      </div>
+      <div id="historyContent"></div>
+    </div>
   </div>
 
   <script>
@@ -436,21 +498,24 @@ rue du Père Coudrin / 56370 Sarzeau
       var bottomLogo = localStorage.getItem(LOGO_KEYS.sarzeau) || '';
 
       var payload = {
+        entryId: document.getElementById('entryId').value.trim(),
         title: document.getElementById('title').value.trim(),
         titleLine2: document.getElementById('titleLine2').value.trim(),
         subtitle: document.getElementById('subtitle').value.trim(),
         subtitleText: document.getElementById('subtitleText').value.trim(),
-        date: document.getElementById('date').value.trim(),
+        dateDay: document.getElementById('dateDay').value.trim(),
+        dateTime: document.getElementById('dateTime').value.trim(),
         dateText: document.getElementById('dateText').value.trim(),
         footer: document.getElementById('footer').value.trim(),
         mainImage: await readAsDataUrl(document.getElementById('mainImage').files[0]),
         topLogo: topLogo,
         bottomLogo: bottomLogo,
-        fontVagRounded: localStorage.getItem(LOGO_KEYS.fontVagRounded) || ''
+        fontVagRounded: localStorage.getItem(LOGO_KEYS.fontVagRounded) || '',
+        hermineChoice: hermineChoice
       };
 
-      if (!payload.title || !payload.date) {
-        alert('Merci de remplir le titre et la date.');
+      if (!payload.title || !payload.dateDay || !payload.dateTime) {
+        alert('Merci de remplir le titre, le jour et l\'heure.');
         return;
       }
 
@@ -462,13 +527,98 @@ rue du Père Coudrin / 56370 Sarzeau
       google.script.run.withSuccessHandler(function(result) {
         var resultEl = document.getElementById('result');
         resultEl.style.display = 'block';
-        resultEl.innerHTML = '\u2705 Fichiers créés :<br />' +
-          '<a href="' + result.htmlUrl + '" target="_blank">Télécharger HTML</a><br />' +
+        resultEl.innerHTML = '\u2705 Fichier PDF créé :<br />' +
           '<a href="' + result.pdfUrl + '" target="_blank">Télécharger PDF</a>';
+        if (result.entryId) {
+          document.getElementById('entryId').value = result.entryId;
+        }
+        loadHistory();
       }).withFailureHandler(function(error) {
         alert('Erreur : ' + error.message);
       }).createPoster(JSON.stringify(payload));
     });
+
+    function setActiveTab(tabId) {
+      document.querySelectorAll('.tab-button').forEach(function(button) {
+        button.classList.toggle('active', button.dataset.tab === tabId);
+      });
+      document.querySelectorAll('.tab-panel').forEach(function(panel) {
+        panel.classList.toggle('active', panel.id === tabId);
+      });
+    }
+
+    document.querySelectorAll('.tab-button').forEach(function(button) {
+      button.addEventListener('click', function() {
+        setActiveTab(button.dataset.tab);
+      });
+    });
+
+    function loadHistory() {
+      google.script.run.withSuccessHandler(function(entries) {
+        renderHistory(entries || []);
+      }).withFailureHandler(function(error) {
+        alert('Erreur : ' + error.message);
+      }).listPosterEntries();
+    }
+
+    function renderHistory(entries) {
+      var container = document.getElementById('historyContent');
+      if (!entries.length) {
+        container.innerHTML = '<p class="hint">Aucune affiche sauvegardée pour le moment.</p>';
+        return;
+      }
+      var rows = entries.map(function(entry) {
+        var dateLabel = (entry.dateDay || '') + (entry.dateTime ? ' / ' + entry.dateTime : '');
+        return '<tr>' +
+          '<td>' + (entry.updatedAt || '') + '</td>' +
+          '<td>' + (entry.title || '') + '</td>' +
+          '<td>' + dateLabel + '</td>' +
+          '<td>' + (entry.pdfUrl ? '<a href="' + entry.pdfUrl + '" target="_blank">PDF</a>' : '') + '</td>' +
+          '<td class="history-actions">' +
+          '<button type="button" data-entry-id="' + entry.id + '">Recharger</button>' +
+          '</td>' +
+          '</tr>';
+      }).join('');
+      container.innerHTML = '<table class="history-table">' +
+        '<thead><tr><th>Dernière mise à jour</th><th>Titre</th><th>Date/Heure</th><th>PDF</th><th>Actions</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>';
+
+      container.querySelectorAll('button[data-entry-id]').forEach(function(button) {
+        button.addEventListener('click', function() {
+          var entry = entries.find(function(item) {
+            return item.id === button.dataset.entryId;
+          });
+          if (entry) {
+            populateForm(entry);
+            setActiveTab('formTab');
+          }
+        });
+      });
+    }
+
+    function populateForm(entry) {
+      document.getElementById('entryId').value = entry.id || '';
+      document.getElementById('title').value = entry.title || '';
+      document.getElementById('titleLine2').value = entry.titleLine2 || '';
+      document.getElementById('subtitle').value = entry.subtitle || '';
+      document.getElementById('subtitleText').value = entry.subtitleText || '';
+      document.getElementById('dateDay').value = entry.dateDay || '';
+      document.getElementById('dateTime').value = entry.dateTime || '';
+      document.getElementById('dateText').value = entry.dateText || '';
+      document.getElementById('footer').value = entry.footer || '';
+      if (entry.hermineChoice) {
+        var option = document.querySelector('input[name="hermineChoice"][value="' + entry.hermineChoice + '"]');
+        if (option) {
+          option.checked = true;
+        }
+      }
+    }
+
+    document.getElementById('refreshHistory').addEventListener('click', function() {
+      loadHistory();
+    });
+
+    loadHistory();
   </script>
 </body>
 </html>
