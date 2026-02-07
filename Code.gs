@@ -39,6 +39,11 @@ function buildPosterHtml(data) {
   var optionalDateText = data.dateText
     ? '<p class="date-text">' + escapeHtml(data.dateText).replace(/\n/g, '<br>') + '</p>'
     : '';
+  var formattedDate = formatLongDate(data.dateDay || '');
+  var dateDisplay = escapeHtml(formattedDate);
+  if ((data.dateTime || '').trim()) {
+    dateDisplay += ' / ' + escapeHtml(data.dateTime.trim());
+  }
   var topLogo = data.topLogo || '';
   var bottomLogo = data.bottomLogo || '';
   var mainImage = data.mainImage || '';
@@ -91,7 +96,7 @@ function buildPosterHtml(data) {
     '<h1 class="title">' + titleHtml + '</h1>' +
     optionalSubtitle +
     optionalDescription +
-    '<p class="date">' + escapeHtml(data.date) + '</p>' +
+    '<p class="date">' + dateDisplay + '</p>' +
     optionalDateText +
     '<div class="footer">' +
     '<div class="info">' + footerMain + footerLink + '</div>' +
@@ -112,6 +117,31 @@ function escapeHtml(text) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function formatLongDate(input) {
+  var trimmed = (input || '').trim();
+  if (!trimmed) return '';
+  var match = trimmed.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+  if (!match) {
+    return trimmed;
+  }
+  var day = parseInt(match[1], 10);
+  var month = parseInt(match[2], 10) - 1;
+  var year = parseInt(match[3], 10);
+  if (year < 100) {
+    year += 2000;
+  }
+  var date = new Date(year, month, day);
+  if (isNaN(date.getTime())) {
+    return trimmed;
+  }
+  var dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  var monthNames = [
+    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+  ];
+  return dayNames[date.getDay()] + ' ' + day + ' ' + monthNames[date.getMonth()];
 }
 
 function calculateTitleFontSize(title, hasTitleLine2) {

@@ -243,8 +243,12 @@
         <textarea id="subtitleText"></textarea>
       </div>
       <div>
-        <label for="date">Jour / Heure</label>
-        <input id="date" type="text" placeholder="Vendredi 20 février / 12h30" required />
+        <label for="dateDay">Jour (format libre ou 02/02/26)</label>
+        <input id="dateDay" type="text" placeholder="Vendredi 20 février ou 02/02/26" required />
+      </div>
+      <div>
+        <label for="dateTime">Heure</label>
+        <input id="dateTime" type="text" placeholder="12h30" required />
       </div>
       <div>
         <label for="dateText">Texte sous la date (optionnel)</label>
@@ -440,7 +444,8 @@ rue du Père Coudrin / 56370 Sarzeau
         titleLine2: document.getElementById('titleLine2').value.trim(),
         subtitle: document.getElementById('subtitle').value.trim(),
         subtitleText: document.getElementById('subtitleText').value.trim(),
-        date: document.getElementById('date').value.trim(),
+        dateDay: document.getElementById('dateDay').value.trim(),
+        dateTime: document.getElementById('dateTime').value.trim(),
         dateText: document.getElementById('dateText').value.trim(),
         footer: document.getElementById('footer').value.trim(),
         mainImage: await readAsDataUrl(document.getElementById('mainImage').files[0]),
@@ -449,8 +454,8 @@ rue du Père Coudrin / 56370 Sarzeau
         fontVagRounded: localStorage.getItem(LOGO_KEYS.fontVagRounded) || ''
       };
 
-      if (!payload.title || !payload.date) {
-        alert('Merci de remplir le titre et la date.');
+      if (!payload.title || !payload.dateDay || !payload.dateTime) {
+        alert('Merci de remplir le titre, le jour et l\'heure.');
         return;
       }
 
