@@ -37,9 +37,13 @@ function buildPosterHtml(data) {
   var bottomLogo = data.bottomLogo || '';
   var mainImage = data.mainImage || '';
   var footerHtml = escapeHtml(data.footer).replace(/\n/g, '<br>');
+  var fontVagRounded = data.fontVagRounded || '';
 
   var imageBgStyle = mainImage
     ? ' style="background-image: url(\'' + mainImage + '\');"'
+    : '';
+  var fontFaceStyle = fontVagRounded
+    ? '@font-face { font-family: "VAG Rounded Std"; font-style: normal; font-weight: 700; src: url("' + fontVagRounded + '"); }'
     : '';
 
   return (
@@ -48,9 +52,10 @@ function buildPosterHtml(data) {
     '<head>' +
     '<meta charset="utf-8">' +
     '<style>' +
+    fontFaceStyle +
     '@page { size: 297mm 420mm; margin: 0; }' +
     '* { box-sizing: border-box; margin: 0; padding: 0; }' +
-    'html, body { width: 297mm; height: 420mm; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+    'html, body { width: 297mm; height: 420mm; font-family: "VAG Rounded Std", "Arial Rounded MT Bold", "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
     '.poster { width: 297mm; height: 420mm; }' +
     '.image-section { width: 297mm; height: 230mm; position: relative; overflow: hidden; background-size: cover; background-position: center; }' +
     '.top-logo { position: absolute; top: 15mm; left: 15mm; width: 50mm; }' +

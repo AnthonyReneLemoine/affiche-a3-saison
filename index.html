@@ -439,7 +439,8 @@ rue du Père Coudrin / 56370 Sarzeau
         footer: document.getElementById('footer').value.trim(),
         mainImage: await readAsDataUrl(document.getElementById('mainImage').files[0]),
         topLogo: topLogo,
-        bottomLogo: bottomLogo
+        bottomLogo: bottomLogo,
+        fontVagRounded: localStorage.getItem(LOGO_KEYS.fontVagRounded) || ''
       };
 
       if (!payload.title || !payload.date) {
