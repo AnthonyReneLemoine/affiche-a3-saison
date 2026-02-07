@@ -134,6 +134,22 @@
     .logo-status.missing {
       color: #b33;
     }
+    .font-preview {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 8px;
+      background: #fff;
+    }
+    .font-preview .sample-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+    }
+    .font-preview .sample-text {
+      margin: 0;
+      font-size: 0.95rem;
+    }
     .btn-small {
       background: #eee;
       border: 1px solid #ccc;
@@ -194,6 +210,17 @@
             <img id="previewSarzeau" class="logo-preview" style="display:none;" />
           </div>
         </div>
+        <div class="logo-row">
+          <div class="logo-item">
+            <label>Police VAG Rounded Std Bold</label>
+            <input id="uploadFontVagRounded" type="file" accept=".otf,.ttf,.woff,.woff2" />
+            <div id="statusFontVagRounded" class="logo-status missing">Non configuré</div>
+            <div class="font-preview" id="previewFontVagRounded" style="display:none;">
+              <p class="sample-title">VAG Rounded Std Bold</p>
+              <p class="sample-text">Aperçu rapide : 0123456789 &amp; Accents éèàç</p>
+            </div>
+          </div>
+        </div>
         <button class="btn-small" onclick="clearLogos()">Réinitialiser les logos</button>
       </div>
     </div>
@@ -249,7 +276,8 @@ rue du Père Coudrin / 56370 Sarzeau
     var LOGO_KEYS = {
       hermineBlanc: 'logo_hermine_blanc',
       hermineNoir: 'logo_hermine_noir',
-      sarzeau: 'logo_sarzeau'
+      sarzeau: 'logo_sarzeau',
+      fontVagRounded: 'font_vag_rounded_std_bold'
     };
 
     function toggleLogoConfig() {
@@ -284,6 +312,7 @@ rue du Père Coudrin / 56370 Sarzeau
       loadLogoPreview(LOGO_KEYS.hermineBlanc, 'previewHermineBlanc', 'statusHermineBlanc');
       loadLogoPreview(LOGO_KEYS.hermineNoir, 'previewHermineNoir', 'statusHermineNoir');
       loadLogoPreview(LOGO_KEYS.sarzeau, 'previewSarzeau', 'statusSarzeau');
+      loadFontPreview();
     }
 
     function setupLogoUpload(inputId, storageKey, previewId, statusId) {
@@ -306,10 +335,66 @@ rue du Père Coudrin / 56370 Sarzeau
       initLogoPreviews();
     }
 
+    function ensureFontStyle() {
+      var existingStyle = document.getElementById('fontVagRoundedStyle');
+      if (existingStyle) {
+        return existingStyle;
+      }
+      var styleEl = document.createElement('style');
+      styleEl.id = 'fontVagRoundedStyle';
+      document.head.appendChild(styleEl);
+      return styleEl;
+    }
+
+    function applyFontFace(fontDataUrl) {
+      var styleEl = ensureFontStyle();
+      if (fontDataUrl) {
+        styleEl.textContent = '@font-face {' +
+          'font-family: \"VAG Rounded Std\";' +
+          'font-style: normal;' +
+          'font-weight: 700;' +
+          'src: url(' + fontDataUrl + ');' +
+          '}';
+      } else {
+        styleEl.textContent = '';
+      }
+    }
+
+    function loadFontPreview() {
+      var data = localStorage.getItem(LOGO_KEYS.fontVagRounded);
+      var preview = document.getElementById('previewFontVagRounded');
+      var status = document.getElementById('statusFontVagRounded');
+      if (data) {
+        preview.style.display = 'block';
+        status.textContent = 'OK';
+        status.className = 'logo-status ok';
+        applyFontFace(data);
+      } else {
+        preview.style.display = 'none';
+        status.textContent = 'Non configuré';
+        status.className = 'logo-status missing';
+        applyFontFace('');
+      }
+    }
+
+    function setupFontUpload() {
+      document.getElementById('uploadFontVagRounded').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function() {
+          localStorage.setItem(LOGO_KEYS.fontVagRounded, reader.result);
+          loadFontPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     // Init logo uploads and previews
     setupLogoUpload('uploadLogoHermineBlanc', LOGO_KEYS.hermineBlanc, 'previewHermineBlanc', 'statusHermineBlanc');
     setupLogoUpload('uploadLogoHermineNoir', LOGO_KEYS.hermineNoir, 'previewHermineNoir', 'statusHermineNoir');
     setupLogoUpload('uploadLogoSarzeau', LOGO_KEYS.sarzeau, 'previewSarzeau', 'statusSarzeau');
+    setupFontUpload();
     initLogoPreviews();
 
     // Collapse logo config if all logos are configured
