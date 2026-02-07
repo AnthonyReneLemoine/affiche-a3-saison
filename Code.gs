@@ -9,11 +9,139 @@ function createPoster(payload) {
 
   var pdfBlob = HtmlService.createHtmlOutput(html).getAs(MimeType.PDF);
   pdfBlob.setName('affiche-a3-' + new Date().toISOString().replace(/[:.]/g, '-') + '.pdf');
-  var pdfFile = DriveApp.createFile(pdfBlob);
+  var targetFolder = ensureAfficheFolder();
+  var pdfFile = targetFolder.createFile(pdfBlob);
+
+  var entryId = data.entryId || '';
+  var entryRecord = savePosterEntry(entryId, data, pdfFile.getUrl());
 
   return {
+    entryId: entryRecord.id,
     pdfUrl: pdfFile.getUrl()
   };
+}
+
+function listPosterEntries() {
+  var sheet = ensureAfficheSheet();
+  var values = sheet.getDataRange().getValues();
+  if (values.length <= 1) {
+    return [];
+  }
+  var headers = values[0];
+  var rows = values.slice(1);
+  return rows.map(function(row) {
+    var entry = {};
+    headers.forEach(function(header, index) {
+      var value = row[index];
+      if ((header === 'createdAt' || header === 'updatedAt') && value) {
+        entry[header] = Utilities.formatDate(new Date(value), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+      } else {
+        entry[header] = value;
+      }
+    });
+    return entry;
+  }).filter(function(entry) {
+    return entry.id;
+  }).reverse();
+}
+
+function ensureAfficheSheet() {
+  var sheetName = 'AFFICHE HERMINE A3';
+  var spreadsheet;
+  var files = DriveApp.getFilesByName(sheetName);
+  if (files.hasNext()) {
+    spreadsheet = SpreadsheetApp.open(files.next());
+  } else {
+    spreadsheet = SpreadsheetApp.create(sheetName);
+  }
+  var sheet = spreadsheet.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(sheetName);
+  }
+  ensureSheetHeaders(sheet);
+  return sheet;
+}
+
+function ensureSheetHeaders(sheet) {
+  var headers = [
+    'id',
+    'createdAt',
+    'updatedAt',
+    'title',
+    'titleLine2',
+    'subtitle',
+    'subtitleText',
+    'dateDay',
+    'dateTime',
+    'dateText',
+    'footer',
+    'hermineChoice',
+    'pdfUrl'
+  ];
+  var existing = sheet.getLastColumn() >= headers.length
+    ? sheet.getRange(1, 1, 1, headers.length).getValues()[0]
+    : [];
+  var needsUpdate = existing.length !== headers.length || existing.some(function(value, index) {
+    return value !== headers[index];
+  });
+  if (needsUpdate) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  }
+}
+
+function ensureAfficheFolder() {
+  var folderName = 'AFFICHE HERMINE A3';
+  var folders = DriveApp.getFoldersByName(folderName);
+  if (folders.hasNext()) {
+    return folders.next();
+  }
+  return DriveApp.createFolder(folderName);
+}
+
+function savePosterEntry(entryId, data, pdfUrl) {
+  var sheet = ensureAfficheSheet();
+  var now = new Date();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var payload = {
+    id: entryId || Utilities.getUuid(),
+    createdAt: now,
+    updatedAt: now,
+    title: data.title || '',
+    titleLine2: data.titleLine2 || '',
+    subtitle: data.subtitle || '',
+    subtitleText: data.subtitleText || '',
+    dateDay: data.dateDay || '',
+    dateTime: data.dateTime || '',
+    dateText: data.dateText || '',
+    footer: data.footer || '',
+    hermineChoice: data.hermineChoice || '',
+    pdfUrl: pdfUrl || ''
+  };
+
+  var rowIndex = findEntryRow(sheet, payload.id);
+  if (rowIndex) {
+    payload.createdAt = sheet.getRange(rowIndex, 2).getValue();
+    payload.updatedAt = now;
+    sheet.getRange(rowIndex, 1, 1, headers.length).setValues([headers.map(function(header) {
+      return payload[header] || '';
+    })]);
+  } else {
+    sheet.appendRow(headers.map(function(header) {
+      return payload[header] || '';
+    }));
+  }
+  return payload;
+}
+
+function findEntryRow(sheet, entryId) {
+  if (!entryId) return 0;
+  var data = sheet.getRange(2, 1, Math.max(sheet.getLastRow() - 1, 0), 1).getValues();
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0] === entryId) {
+      return i + 2;
+    }
+  }
+  return 0;
 }
 
 function buildPosterHtml(data) {
