@@ -64,10 +64,10 @@ function buildPosterHtml(data) {
     '@page { size: 297mm 420mm; margin: 0; }' +
     '* { box-sizing: border-box; margin: 0; padding: 0; }' +
     'html, body { width: 297mm; height: 420mm; font-family: "VAG Rounded Std", "Arial Rounded MT Bold", "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
-    '.poster { width: 297mm; height: 420mm; }' +
-    '.image-section { width: 297mm; height: 230mm; position: relative; overflow: hidden; background-size: cover; background-position: center; }' +
-    '.top-logo { position: absolute; top: 15mm; left: 15mm; width: 50mm; }' +
-    '.content { width: 297mm; height: 190mm; background: #f2d20a; padding: 15mm 20mm; position: relative; }' +
+    '.poster { width: 297mm; height: 420mm; display: flex; flex-direction: column; }' +
+    '.image-section { width: 297mm; flex: 1 1 auto; position: relative; overflow: hidden; background-size: cover; background-position: center; }' +
+    '.top-logo { position: absolute; top: 15mm; left: 15mm; width: 67mm; }' +
+    '.content { width: 297mm; background: #f2d20a; padding: 15mm 20mm; }' +
     '.title { font-size: ' + titleFontSize + 'pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.05; width: 70%;' +
     (hasTitleLine2 ? '' : ' white-space: nowrap;') +
     ' }' +
@@ -76,7 +76,7 @@ function buildPosterHtml(data) {
     '.description { font-size: 18pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.3; }' +
     '.date { font-size: 46pt; font-weight: 700; margin: 0; line-height: 1.1; }' +
     '.date-text { font-size: 18pt; font-weight: 400; margin: 3mm 0 0 0; line-height: 1.3; }' +
-    '.footer { position: absolute; bottom: 12mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; align-items: flex-end; }' +
+    '.footer { margin-top: 10mm; display: flex; justify-content: space-between; align-items: flex-end; }' +
     '.footer .info { font-size: 18pt; line-height: 1.5; font-weight: 700; }' +
     '.footer .info .footer-link { display: block; margin-top: 3mm; }' +
     '.bottom-logo { width: 40mm; }' +
