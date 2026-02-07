@@ -24,6 +24,10 @@ function createPoster(payload) {
 }
 
 function buildPosterHtml(data) {
+  var titleLine2 = data.titleLine2
+    ? '<span class="title-line">' + escapeHtml(data.titleLine2) + '</span>'
+    : '';
+  var titleHtml = '<span class="title-line">' + escapeHtml(data.title) + '</span>' + titleLine2;
   var optionalSubtitle = data.subtitle
     ? '<h2 class="subtitle">' + escapeHtml(data.subtitle) + '</h2>'
     : '';
@@ -60,13 +64,14 @@ function buildPosterHtml(data) {
     '.image-section { width: 297mm; height: 230mm; position: relative; overflow: hidden; background-size: cover; background-position: center; }' +
     '.top-logo { position: absolute; top: 15mm; left: 15mm; width: 50mm; }' +
     '.content { width: 297mm; height: 190mm; background: #f2d20a; padding: 15mm 20mm; position: relative; }' +
-    '.title { font-size: 45pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.05; }' +
-    '.subtitle { font-size: 22pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.15; }' +
-    '.description { font-size: 16pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.3; }' +
-    '.date { font-size: 34pt; font-weight: 700; margin: 0; line-height: 1.1; }' +
-    '.date-text { font-size: 14pt; font-weight: 400; margin: 3mm 0 0 0; line-height: 1.3; }' +
+    '.title { font-size: 50pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.05; width: 70%; }' +
+    '.title-line { display: block; }' +
+    '.subtitle { font-size: 24pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.15; }' +
+    '.description { font-size: 18pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.3; }' +
+    '.date { font-size: 46pt; font-weight: 700; margin: 0; line-height: 1.1; }' +
+    '.date-text { font-size: 18pt; font-weight: 400; margin: 3mm 0 0 0; line-height: 1.3; }' +
     '.footer { position: absolute; bottom: 12mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; align-items: flex-end; }' +
-    '.footer .info { font-size: 11pt; line-height: 1.5; font-weight: 700; }' +
+    '.footer .info { font-size: 18pt; line-height: 1.5; font-weight: 700; }' +
     '.bottom-logo { width: 40mm; }' +
     '</style>' +
     '</head>' +
@@ -76,7 +81,7 @@ function buildPosterHtml(data) {
     (topLogo ? '<img class="top-logo" src="' + topLogo + '" alt="Logo" />' : '') +
     '</div>' +
     '<div class="content">' +
-    '<h1 class="title">' + escapeHtml(data.title) + '</h1>' +
+    '<h1 class="title">' + titleHtml + '</h1>' +
     optionalSubtitle +
     optionalDescription +
     '<p class="date">' + escapeHtml(data.date) + '</p>' +

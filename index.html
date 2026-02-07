@@ -227,8 +227,12 @@
 
     <div class="grid">
       <div>
-        <label for="title">Titre</label>
+        <label for="title">Titre (ligne 1)</label>
         <input id="title" type="text" required />
+      </div>
+      <div>
+        <label for="titleLine2">Titre (ligne 2, optionnel)</label>
+        <input id="titleLine2" type="text" />
       </div>
       <div>
         <label for="subtitle">Sous-titre (optionnel)</label>
@@ -432,6 +436,7 @@ rue du Père Coudrin / 56370 Sarzeau
 
       var payload = {
         title: document.getElementById('title').value.trim(),
+        titleLine2: document.getElementById('titleLine2').value.trim(),
         subtitle: document.getElementById('subtitle').value.trim(),
         subtitleText: document.getElementById('subtitleText').value.trim(),
         date: document.getElementById('date').value.trim(),
