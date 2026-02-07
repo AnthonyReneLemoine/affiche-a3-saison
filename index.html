@@ -22,6 +22,10 @@
     h1 {
       margin-top: 0;
     }
+    h2 {
+      font-size: 1.1rem;
+      margin: 0 0 12px 0;
+    }
     .grid {
       display: grid;
       gap: 16px;
@@ -69,23 +73,136 @@
       font-size: 0.9rem;
       color: #555;
     }
+    /* Logo config section */
+    .logo-config {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      background: #fafafa;
+    }
+    .logo-config-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .logo-config-header h2 {
+      margin: 0;
+    }
+    .logo-config-body {
+      margin-top: 12px;
+    }
+    .logo-config-body.hidden {
+      display: none;
+    }
+    .logo-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .logo-item {
+      flex: 1;
+      min-width: 200px;
+    }
+    .logo-preview {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-top: 6px;
+      background: #eee;
+    }
+    .logo-preview.on-dark {
+      background: #333;
+    }
+    .logo-status {
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+    .logo-status.ok {
+      color: #2a7d2a;
+    }
+    .logo-status.missing {
+      color: #b33;
+    }
+    .btn-small {
+      background: #eee;
+      border: 1px solid #ccc;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: #ddd;
+    }
+    /* Radio group */
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .radio-group label {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Créateur d'affiches A3</h1>
     <p class="hint">Remplissez les champs pour générer une affiche A3 (HTML + PDF).</p>
+
+    <!-- Logo configuration -->
+    <div class="logo-config">
+      <div class="logo-config-header" onclick="toggleLogoConfig()">
+        <h2>Configuration des logos</h2>
+        <span id="toggleArrow">&#9660;</span>
+      </div>
+      <div class="logo-config-body" id="logoConfigBody">
+        <p class="hint">Uploadez les logos une seule fois. Ils seront sauvegardés dans votre navigateur.</p>
+        <div class="logo-row">
+          <div class="logo-item">
+            <label>Logo L'Hermine — Blanc</label>
+            <input id="uploadLogoHermineBlanc" type="file" accept="image/*" />
+            <div id="statusHermineBlanc" class="logo-status missing">Non configuré</div>
+            <img id="previewHermineBlanc" class="logo-preview on-dark" style="display:none;" />
+          </div>
+          <div class="logo-item">
+            <label>Logo L'Hermine — Noir</label>
+            <input id="uploadLogoHermineNoir" type="file" accept="image/*" />
+            <div id="statusHermineNoir" class="logo-status missing">Non configuré</div>
+            <img id="previewHermineNoir" class="logo-preview" style="display:none;" />
+          </div>
+          <div class="logo-item">
+            <label>Logo Sarzeau</label>
+            <input id="uploadLogoSarzeau" type="file" accept="image/*" />
+            <div id="statusSarzeau" class="logo-status missing">Non configuré</div>
+            <img id="previewSarzeau" class="logo-preview" style="display:none;" />
+          </div>
+        </div>
+        <button class="btn-small" onclick="clearLogos()">Réinitialiser les logos</button>
+      </div>
+    </div>
+
     <div class="grid">
       <div>
         <label for="title">Titre</label>
         <input id="title" type="text" required />
       </div>
       <div>
-        <label for="subtitle">Sous-titre</label>
-        <input id="subtitle" type="text" required />
+        <label for="subtitle">Sous-titre (optionnel)</label>
+        <input id="subtitle" type="text" />
       </div>
       <div>
-        <label for="subtitleText">Texte sous le sous-titre (optionnel)</label>
+        <label for="subtitleText">Texte descriptif (optionnel)</label>
         <textarea id="subtitleText"></textarea>
       </div>
       <div>
@@ -98,31 +215,21 @@
       </div>
       <div>
         <label for="footer">Infos bas de page</label>
-        <textarea id="footer">espace culturel l'hermine\nrue du Père Coudrin / 56370 Sarzeau\n► lhermine.bzh</textarea>
+        <textarea id="footer">espace culturel l'hermine
+rue du Père Coudrin / 56370 Sarzeau
+► lhermine.bzh</textarea>
       </div>
       <div>
         <label for="mainImage">Photo principale</label>
         <input id="mainImage" type="file" accept="image/*" />
       </div>
       <div>
-        <label for="topLogoChoice">Logo haut (blanc ou noir)</label>
-        <select id="topLogoChoice">
-          <option value="">Aucun</option>
-          <option value="white">Logo blanc</option>
-          <option value="black">Logo noir</option>
-        </select>
-        <div style="margin-top: 8px;">
-          <label for="topLogoWhite">Uploader logo blanc</label>
-          <input id="topLogoWhite" type="file" accept="image/*" />
+        <label>Logo L'Hermine (haut gauche)</label>
+        <div class="radio-group">
+          <label><input type="radio" name="hermineChoice" value="noir" checked /> Noir</label>
+          <label><input type="radio" name="hermineChoice" value="blanc" /> Blanc</label>
+          <label><input type="radio" name="hermineChoice" value="aucun" /> Aucun</label>
         </div>
-        <div style="margin-top: 8px;">
-          <label for="topLogoBlack">Uploader logo noir</label>
-          <input id="topLogoBlack" type="file" accept="image/*" />
-        </div>
-      </div>
-      <div>
-        <label for="bottomLogo">Logo bas (par défaut ou uploader)</label>
-        <input id="bottomLogo" type="file" accept="image/*" />
       </div>
     </div>
     <div class="actions">
@@ -132,19 +239,107 @@
   </div>
 
   <script>
-    const readAsDataUrl = (file) => new Promise((resolve, reject) => {
-      if (!file) {
-        resolve('');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+    // --- localStorage logo management ---
+    var LOGO_KEYS = {
+      hermineBlanc: 'logo_hermine_blanc',
+      hermineNoir: 'logo_hermine_noir',
+      sarzeau: 'logo_sarzeau'
+    };
 
-    document.getElementById('generate').addEventListener('click', async () => {
-      const payload = {
+    function toggleLogoConfig() {
+      var body = document.getElementById('logoConfigBody');
+      var arrow = document.getElementById('toggleArrow');
+      if (body.classList.contains('hidden')) {
+        body.classList.remove('hidden');
+        arrow.innerHTML = '&#9660;';
+      } else {
+        body.classList.add('hidden');
+        arrow.innerHTML = '&#9654;';
+      }
+    }
+
+    function loadLogoPreview(key, previewId, statusId, darkBg) {
+      var data = localStorage.getItem(key);
+      var preview = document.getElementById(previewId);
+      var status = document.getElementById(statusId);
+      if (data) {
+        preview.src = data;
+        preview.style.display = 'block';
+        status.textContent = 'OK';
+        status.className = 'logo-status ok';
+      } else {
+        preview.style.display = 'none';
+        status.textContent = 'Non configuré';
+        status.className = 'logo-status missing';
+      }
+    }
+
+    function initLogoPreviews() {
+      loadLogoPreview(LOGO_KEYS.hermineBlanc, 'previewHermineBlanc', 'statusHermineBlanc');
+      loadLogoPreview(LOGO_KEYS.hermineNoir, 'previewHermineNoir', 'statusHermineNoir');
+      loadLogoPreview(LOGO_KEYS.sarzeau, 'previewSarzeau', 'statusSarzeau');
+    }
+
+    function setupLogoUpload(inputId, storageKey, previewId, statusId) {
+      document.getElementById(inputId).addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function() {
+          localStorage.setItem(storageKey, reader.result);
+          loadLogoPreview(storageKey, previewId, statusId);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function clearLogos() {
+      Object.values(LOGO_KEYS).forEach(function(key) {
+        localStorage.removeItem(key);
+      });
+      initLogoPreviews();
+    }
+
+    // Init logo uploads and previews
+    setupLogoUpload('uploadLogoHermineBlanc', LOGO_KEYS.hermineBlanc, 'previewHermineBlanc', 'statusHermineBlanc');
+    setupLogoUpload('uploadLogoHermineNoir', LOGO_KEYS.hermineNoir, 'previewHermineNoir', 'statusHermineNoir');
+    setupLogoUpload('uploadLogoSarzeau', LOGO_KEYS.sarzeau, 'previewSarzeau', 'statusSarzeau');
+    initLogoPreviews();
+
+    // Collapse logo config if all logos are configured
+    if (localStorage.getItem(LOGO_KEYS.hermineBlanc) &&
+        localStorage.getItem(LOGO_KEYS.hermineNoir) &&
+        localStorage.getItem(LOGO_KEYS.sarzeau)) {
+      document.getElementById('logoConfigBody').classList.add('hidden');
+      document.getElementById('toggleArrow').innerHTML = '&#9654;';
+    }
+
+    // --- Poster generation ---
+    var readAsDataUrl = function(file) {
+      return new Promise(function(resolve, reject) {
+        if (!file) { resolve(''); return; }
+        var reader = new FileReader();
+        reader.onload = function() { resolve(reader.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
+
+    document.getElementById('generate').addEventListener('click', async function() {
+      var hermineChoice = document.querySelector('input[name="hermineChoice"]:checked').value;
+
+      // Resolve top logo
+      var topLogo = '';
+      if (hermineChoice === 'noir') {
+        topLogo = localStorage.getItem(LOGO_KEYS.hermineNoir) || '';
+      } else if (hermineChoice === 'blanc') {
+        topLogo = localStorage.getItem(LOGO_KEYS.hermineBlanc) || '';
+      }
+
+      // Sarzeau logo always included
+      var bottomLogo = localStorage.getItem(LOGO_KEYS.sarzeau) || '';
+
+      var payload = {
         title: document.getElementById('title').value.trim(),
         subtitle: document.getElementById('subtitle').value.trim(),
         subtitleText: document.getElementById('subtitleText').value.trim(),
@@ -152,24 +347,27 @@
         dateText: document.getElementById('dateText').value.trim(),
         footer: document.getElementById('footer').value.trim(),
         mainImage: await readAsDataUrl(document.getElementById('mainImage').files[0]),
-        topLogoChoice: document.getElementById('topLogoChoice').value,
-        topLogoWhite: await readAsDataUrl(document.getElementById('topLogoWhite').files[0]),
-        topLogoBlack: await readAsDataUrl(document.getElementById('topLogoBlack').files[0]),
-        bottomLogo: await readAsDataUrl(document.getElementById('bottomLogo').files[0])
+        topLogo: topLogo,
+        bottomLogo: bottomLogo
       };
 
-      if (!payload.title || !payload.subtitle || !payload.date) {
-        alert('Merci de remplir le titre, le sous-titre et la date.');
+      if (!payload.title || !payload.date) {
+        alert('Merci de remplir le titre et la date.');
         return;
       }
 
-      google.script.run.withSuccessHandler((result) => {
-        const resultEl = document.getElementById('result');
+      if (hermineChoice !== 'aucun' && !topLogo) {
+        alert('Le logo L\'Hermine (' + hermineChoice + ') n\'a pas été configuré. Ouvrez la section "Configuration des logos" pour l\'uploader.');
+        return;
+      }
+
+      google.script.run.withSuccessHandler(function(result) {
+        var resultEl = document.getElementById('result');
         resultEl.style.display = 'block';
-        resultEl.innerHTML = `✅ Fichiers créés :<br />
-          <a href="${result.htmlUrl}" target="_blank">Télécharger HTML</a><br />
-          <a href="${result.pdfUrl}" target="_blank">Télécharger PDF</a>`;
-      }).withFailureHandler((error) => {
+        resultEl.innerHTML = '\u2705 Fichiers créés :<br />' +
+          '<a href="' + result.htmlUrl + '" target="_blank">Télécharger HTML</a><br />' +
+          '<a href="' + result.pdfUrl + '" target="_blank">Télécharger PDF</a>';
+      }).withFailureHandler(function(error) {
         alert('Erreur : ' + error.message);
       }).createPoster(JSON.stringify(payload));
     });
