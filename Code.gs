@@ -135,7 +135,11 @@ function savePosterEntry(entryId, data, pdfUrl) {
 
 function findEntryRow(sheet, entryId) {
   if (!entryId) return 0;
-  var data = sheet.getRange(2, 1, Math.max(sheet.getLastRow() - 1, 0), 1).getValues();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return 0;
+  }
+  var data = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
   for (var i = 0; i < data.length; i++) {
     if (data[i][0] === entryId) {
       return i + 2;
