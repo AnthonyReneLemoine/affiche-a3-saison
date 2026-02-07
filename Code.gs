@@ -24,6 +24,12 @@ function createPoster(payload) {
 }
 
 function buildPosterHtml(data) {
+  var hasTitleLine2 = !!data.titleLine2;
+  var titleFontSize = calculateTitleFontSize(data.title, hasTitleLine2);
+  var titleLine2 = data.titleLine2
+    ? '<span class="title-line">' + escapeHtml(data.titleLine2) + '</span>'
+    : '';
+  var titleHtml = '<span class="title-line">' + escapeHtml(data.title) + '</span>' + titleLine2;
   var optionalSubtitle = data.subtitle
     ? '<h2 class="subtitle">' + escapeHtml(data.subtitle) + '</h2>'
     : '';
@@ -36,7 +42,9 @@ function buildPosterHtml(data) {
   var topLogo = data.topLogo || '';
   var bottomLogo = data.bottomLogo || '';
   var mainImage = data.mainImage || '';
-  var footerHtml = escapeHtml(data.footer).replace(/\n/g, '<br>');
+  var footerParts = buildFooterHtmlParts(data.footer);
+  var footerMain = footerParts.main;
+  var footerLink = footerParts.link;
   var fontVagRounded = data.fontVagRounded || '';
 
   var imageBgStyle = mainImage
@@ -60,13 +68,17 @@ function buildPosterHtml(data) {
     '.image-section { width: 297mm; height: 230mm; position: relative; overflow: hidden; background-size: cover; background-position: center; }' +
     '.top-logo { position: absolute; top: 15mm; left: 15mm; width: 50mm; }' +
     '.content { width: 297mm; height: 190mm; background: #f2d20a; padding: 15mm 20mm; position: relative; }' +
-    '.title { font-size: 45pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.05; }' +
-    '.subtitle { font-size: 22pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.15; }' +
-    '.description { font-size: 16pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.3; }' +
-    '.date { font-size: 34pt; font-weight: 700; margin: 0; line-height: 1.1; }' +
-    '.date-text { font-size: 14pt; font-weight: 400; margin: 3mm 0 0 0; line-height: 1.3; }' +
+    '.title { font-size: ' + titleFontSize + 'pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.05; width: 70%;' +
+    (hasTitleLine2 ? '' : ' white-space: nowrap;') +
+    ' }' +
+    '.title-line { display: block; }' +
+    '.subtitle { font-size: 24pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.15; }' +
+    '.description { font-size: 18pt; font-weight: 700; margin: 0 0 3mm 0; line-height: 1.3; }' +
+    '.date { font-size: 46pt; font-weight: 700; margin: 0; line-height: 1.1; }' +
+    '.date-text { font-size: 18pt; font-weight: 400; margin: 3mm 0 0 0; line-height: 1.3; }' +
     '.footer { position: absolute; bottom: 12mm; left: 20mm; right: 20mm; display: flex; justify-content: space-between; align-items: flex-end; }' +
-    '.footer .info { font-size: 11pt; line-height: 1.5; font-weight: 700; }' +
+    '.footer .info { font-size: 18pt; line-height: 1.5; font-weight: 700; }' +
+    '.footer .info .footer-link { display: block; margin-top: 3mm; }' +
     '.bottom-logo { width: 40mm; }' +
     '</style>' +
     '</head>' +
@@ -76,13 +88,13 @@ function buildPosterHtml(data) {
     (topLogo ? '<img class="top-logo" src="' + topLogo + '" alt="Logo" />' : '') +
     '</div>' +
     '<div class="content">' +
-    '<h1 class="title">' + escapeHtml(data.title) + '</h1>' +
+    '<h1 class="title">' + titleHtml + '</h1>' +
     optionalSubtitle +
     optionalDescription +
     '<p class="date">' + escapeHtml(data.date) + '</p>' +
     optionalDateText +
     '<div class="footer">' +
-    '<div class="info">' + footerHtml + '</div>' +
+    '<div class="info">' + footerMain + footerLink + '</div>' +
     (bottomLogo ? '<img class="bottom-logo" src="' + bottomLogo + '" alt="Logo Sarzeau" />' : '') +
     '</div>' +
     '</div>' +
@@ -100,4 +112,54 @@ function escapeHtml(text) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function calculateTitleFontSize(title, hasTitleLine2) {
+  if (hasTitleLine2) {
+    return 50;
+  }
+  var trimmed = (title || '').trim();
+  if (!trimmed) {
+    return 50;
+  }
+  var length = trimmed.length;
+  if (length <= 20) {
+    return 50;
+  }
+  if (length <= 28) {
+    return 48;
+  }
+  if (length <= 36) {
+    return 46;
+  }
+  if (length <= 44) {
+    return 44;
+  }
+  if (length <= 52) {
+    return 42;
+  }
+  return 40;
+}
+
+function buildFooterHtmlParts(footerText) {
+  var lines = (footerText || '').split(/\n/).map(function(line) {
+    return escapeHtml(line.trim());
+  }).filter(function(line) {
+    return line.length > 0;
+  });
+  if (lines.length === 0) {
+    return { main: '', link: '' };
+  }
+  var lastLine = lines[lines.length - 1];
+  var mainLines = lines.slice(0, -1);
+  var mainHtml = mainLines.length
+    ? mainLines.join('<br>')
+    : '';
+  var linkHtml = lastLine
+    ? '<span class="footer-link">' + lastLine + '</span>'
+    : '';
+  return {
+    main: mainHtml ? mainHtml + '<br>' : '',
+    link: linkHtml
+  };
 }
